@@ -5,7 +5,8 @@ const bodyParser = require('body-parser');
 const dbConfig = require('./database/db');
 
 // Express APIs
-const api = require('./routes/auth.routes');
+const auth = require('./routes/auth.routes');
+const question = require('./routes/question.routes');
 
 // MongoDB conection
 mongoose.Promise = global.Promise;
@@ -35,7 +36,8 @@ app.use(cors());
 // Serve static resources
 app.use('/public', express.static('public'));
 
-app.use('/api', api)
+app.use('/api', auth)
+app.use('/api/question',question);
 
 // Define PORT
 const port = process.env.PORT || 4000;
