@@ -9,8 +9,6 @@ const ProfileSchema = new schema({
     username: {
         type: String,
         required: true
-
-
     },
     website: {
         type: String,
