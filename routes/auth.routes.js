@@ -11,18 +11,18 @@ const { check, validationResult } = require('express-validator');
 // Sign-up
 router.post("/register-user",
     [
-        check('name')
+        check('username','Username is required')
             .not()
             .isEmpty()
             .isLength({ min: 3 })
-            .withMessage('Name must be atleast 3 characters long'),
+            .withMessage('username must be atleast 3 characters long'),
         check('email', 'Email is required')
             .not()
             .isEmpty(),
-        check('password', 'Password should be between 5 to 8 characters long')
+        check('password', 'Password should be more than  8 characters long')
             .not()
             .isEmpty()
-            .isLength({ min: 5, max: 8 })
+            .isLength({ min: 8 })
     ],
     (req, res, next) => {
         const errors = validationResult(req);
@@ -34,7 +34,7 @@ router.post("/register-user",
         else {
             bcrypt.hash(req.body.password, 10).then((hash) => {
                 const user = new userSchema({
-                    name: req.body.name,
+                    username: req.body.username,
                     email: req.body.email,
                     password: hash
                 });
