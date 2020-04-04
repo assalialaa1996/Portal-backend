@@ -70,6 +70,7 @@ const QuestionSchema = new schema({
         type: Boolean,
         Default: false
     },
+    closed:{
         type: Boolean,
         Default: false
     }
