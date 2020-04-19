@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authorize = require("../middlewares/auth");
-
+const http = require('http');
 //load User model
 const Person = require("../models/User");
 //load Profile  model
@@ -9,18 +9,55 @@ const Profile = require("../models/profile");
 //load Question model
 const Question = require("../models/Question");
 
+
+//------------------------------------------------
+const multer = require('multer');
+const storage = multer.diskStorage({
+    destination: (req, file, callBack) => {
+        callBack(null, 'public')
+    },
+    filename: (req, file, callBack) => {
+        callBack(null, `${file.originalname}`)
+    }
+  })
+  
+const upload = multer({ storage: storage })
+
+router.post('/file', upload.single('UploadFiles'), (req, res, next) => {
+    const file = req.file;
+    console.log(file.filename);
+    if (!file) {
+      const error = new Error('No File')
+      error.httpStatusCode = 400
+      return next(error)
+    }
+      res.send(file);
+  })
+
+
+
+
+
+
+
+
+//------------------------------------------
+
 //@type - POST
 //@route -  /api/questions
 //@desc - route for submit question
 //@access - PRIVATE
 router.post(""/*, authorize*/, (req, res) => {
     const newQuestion = new Question({
-        user: req.body.id,
+        user: req.body.user,
         content: req.body.content,
         name: req.body.name,
-        tags: req.body.tags
+        tags: req.body.tags,
+        date: Date.now(),
+        closed: false,
+        answered: false
     });
-    
+  
   newQuestion.save()
         .then(question => {
             res.json(question)
@@ -65,16 +102,30 @@ router.delete("/all/del", authorize , (req, res) => {
 //@route -  /api/questions
 //@desc - route for showing all question
 //@access - PUBLIC
-router.get("/", (req, res) => {
-    Question.find()
-        .sort({ date: "desc" })
-        .then(questions => {
-            if (!questions) {
+router.get("/", async (req, res) => {
+  // destructure page and limit and set default values
+  const { page = 1, limit = 3 } = req.query;
 
-            }
-            res.json(questions)
-        })
-        .catch(err => consol.log("Problem in fetching question", err));
+  try {
+    // execute query with page and limit values
+    const questions = await Question.find()
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .sort( {date: 'desc'})
+      .exec();
+
+    // get total documents in the Posts collection 
+    const count = await Question.countDocuments();
+
+    // return response with posts, total pages, and current page
+    res.json({
+        questions,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page
+    });
+  } catch (err) {
+    console.error(err.message);
+  }
 });
 
 
@@ -191,4 +242,59 @@ router.post("/answers/upvote/:qid/:aid", authorize, (req, res) => {
         })
         .catch(err => console.log("Problem in Fetching Profile", err));
 });
+//@type - POST
+//@route -  /api/questions/answers/upvote/:qid/:aid
+//@desc - route for upvoting answers
+//@access - PRIVATE
+router.post("/upload_img",/* authorize,*/ (req, res) => {
+
+   
+      /*  var httpPostedFile = System.Web.HttpContext.Current.Request.Files["UploadFiles"];
+        imageFile = httpPostedFile.FileName;
+        if (httpPostedFile != null)
+        {
+            var fileSave = System.Web.HttpContext.Current.Server.MapPath("~/Images");
+            if (!Directory.Exists(fileSave))
+            {
+                Directory.CreateDirectory(fileSave);
+            }
+            var fileName = Path.GetFileName(httpPostedFile.FileName);
+            var fileSavePath = Path.Combine(fileSave, fileName);
+            while (System.IO.File.Exists(fileSavePath))
+            {
+                imageFile = "rteImage" + x + "-" + fileName;
+                fileSavePath = Path.Combine(fileSave, imageFile);
+                x++;
+            }
+       
+        }
+    */
+   console.log('fdsfds')
+
+})
+
+
+
+router.post('/upload', async (req, res) => {
+    console.log(req.FileName);
+    //console.log(req.files.file.path);
+    //console.log(req.files.file.type);
+ 
+    /*var file = __dirname + "/" + req.files.file.name;
+    fs.readFile( req.files.file.path, function (err, data) {
+         fs.writeFile(file, data, function (err) {
+          if( err ){
+               console.log( err );
+          }else{
+                response = {
+                    message:'File uploaded successfully',
+                    filename:req.files.file.name
+               };
+           }
+           console.log( response );
+           res.end( JSON.stringify( response ) );
+        });
+    });*/
+ })
+
 module.exports = router;

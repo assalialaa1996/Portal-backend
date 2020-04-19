@@ -76,4 +76,4 @@ const QuestionSchema = new schema({
     }
 
 });
-module.exports = Question = mongoose.model("myQuestion", QuestionSchema);
+module.exports = Question = mongoose.model("Question", QuestionSchema);

@@ -73,7 +73,7 @@ router.post("/signin", (req, res, next) => {
             });
         }
         let jwtToken = jwt.sign({
-            email: getUser.email,
+            
             userId: getUser._id
         }, "longer-secret-is-better", {
             expiresIn: "1h"
@@ -81,7 +81,8 @@ router.post("/signin", (req, res, next) => {
         res.status(200).json({
             token: jwtToken,
             expiresIn: 3600,
-            _id: getUser._id
+            _id: getUser._id,
+            user: getUser
         });
     }).catch(err => {
         return res.status(401).json({
