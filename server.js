@@ -9,7 +9,9 @@ const dbConfig = require('./database/db');
 // Express APIs
 const auth = require('./routes/auth.routes');
 const question = require('./routes/question.routes');
-
+const job= require('./routes/job.routes');
+const article= require('./routes/article.routes');
+const profile= require('./routes/profile.routes');
 // MongoDB conection
 mongoose.Promise = global.Promise;
 mongoose.connect(dbConfig.db, {
@@ -40,6 +42,9 @@ app.use('/public', express.static('public'));
 
 app.use('/api', auth)
 app.use('/api/question',question);
+app.use('/api/job',job);
+app.use('/api/article',article);
+app.use('/api/profile',profile);
 
 // Define PORT
 const port = process.env.PORT || 4000;
