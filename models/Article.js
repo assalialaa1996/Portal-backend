@@ -17,17 +17,16 @@ const ArticleSchema = new schema({
             type: String
         }
     },
-    title_image: {
-        type: String,
-
-    },  
     date: {
         type: Date,
         Default: Date.now,
 
     },
     comments: [{
-        content:{
+        text:{
+            type: String
+        },
+        name:{
             type: String
         },
         user: {

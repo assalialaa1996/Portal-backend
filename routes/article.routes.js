@@ -41,7 +41,6 @@ router.post(""/*, authorize*/, (req, res) => {
     const newArt = new Article({
         user: req.body.user,
         content: req.body.content,
-        title_image: req.body.title_image,
         date: Date.now()
     });
   newArt.save()
@@ -71,4 +70,85 @@ router.delete("/:ar_id"/*, authorize*/, (req, res) => {
         .catch(err => console.log("Problem in Deleting a specific article", err));
 });
 
+//get  my articles
+router.get("/my/:id", (req, res) => {
+ 
+
+  Article.find({ user: req.params.id })
+  .then(q => {
+      if (!q) {
+          return res.json({ "NoArticle": "No article Found" });
+      }
+      
+          res.send(q);
+  })
+});
+
+//get by ID
+router.get("/one/:id", (req, res) => {
+ 
+
+    Article.find({ _id: req.params.id })
+    .then(art => {
+        if (!art) {
+            return res.json({ "NoArticle": "Article Not found" });
+        }
+        
+            res.send(art);
+    })
+  });
+  
+  //@type - GET
+//@route -  /api/job
+//@desc - route for showing all jobs
+//@access - PUBLIC
+router.get("/", async (req, res) => {
+    // destructure page and limit and set default values
+    const { page = 1, limit = 6 } = req.query;
+  
+    try {
+      // execute query with page and limit values
+      const arts = await Article.find()
+        .limit(limit * 1)
+        .skip((page - 1) * limit)
+        .sort( {date: 'desc'})
+        .exec();
+  
+      // get total documents in the Posts collection 
+      const count = await Article.countDocuments();
+  
+      // return response with posts, total pages, and current page
+      res.json({
+        arts,
+          totalPages: Math.ceil(count / limit),
+          currentPage: page
+      });
+    } catch (err) {
+      console.error(err.message);
+    }
+  });
+    
+  //@type - POST
+//@route -  /api/questions/answers/:id
+//@desc - route for submit answers to questions
+//@access - PRIVATE
+router.post("/answers/:id",/* authorize,*/ (req, res) => {
+  Article.findById(req.params.id)
+      .then(article => {
+
+          const newAnswer = {
+              user: req.body.id,
+              text: req.body.text,
+              name: req.body.name,
+          };
+
+          article.comments.unshift(newAnswer);
+          article.save()
+              .then(article => {
+                  res.json(article)
+              })
+              .catch(err => console.log("Error in saving article", err));
+      })
+      .catch(err => console.log("Problem in submitting answer", err));
+})
 module.exports = router;

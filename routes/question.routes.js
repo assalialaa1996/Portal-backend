@@ -36,6 +36,35 @@ router.post('/file', upload.single('UploadFiles'), (req, res, next) => {
 
 
 
+//get  my questions
+router.get("/my/:id", (req, res) => {
+ 
+
+    Question.find({ user: req.params.id })
+    .then(q => {
+        if (!q) {
+            return res.json({ "NoQuest": "Question Not found" });
+        }
+        
+            res.send(q);
+    })
+  });
+
+//get by ID
+router.get("/one/:id", (req, res) => {
+ 
+
+    Question.find({ _id: req.params.id })
+    .then(q => {
+        if (!q) {
+            return res.json({ "NoQuest": "Question Not found" });
+        }
+        
+            res.send(q);
+    })
+  });
+  
+    
 //------------------------------------------
 
 //@type - POST
@@ -128,7 +157,7 @@ router.get("/", async (req, res) => {
 //@route -  /api/questions/answers/:id
 //@desc - route for submit answers to questions
 //@access - PRIVATE
-router.post("/answers/:id", authorize, (req, res) => {
+router.post("/answers/:id",/* authorize,*/ (req, res) => {
     Question.findById(req.params.id)
         .then(question => {
 

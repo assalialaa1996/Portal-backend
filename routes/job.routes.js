@@ -31,13 +31,44 @@ router.post(""/*, authorize*/, (req, res) => {
         })
         .catch(err => console.log("Unable to save job to database", err));
 })
+//get by ID
+router.get("/one/:id", (req, res) => {
+ 
+
+  Job.find({ _id: req.params.id })
+  .then(job => {
+      if (!job) {
+          return res.json({ "NoJob": "Job Not found" });
+      }
+      
+          res.send(job);
+  })
+});
+
+//get  my projects
+router.get("/my/:id", (req, res) => {
+ 
+
+  Job.find({ user: req.params.id })
+  .then(q => {
+      if (!q) {
+          return res.json({ "NoJob": "Jobs Not found" });
+      }
+      
+          res.send(q);
+  })
+});
+  
+ 
+
+
 
 //@type - DELETE
 //@route -  /api/jobs/:j_id
 //@desc - route for deleting a specific job
 //@access - PRIVATE
 router.delete("/:j_id"/*, authorize*/, (req, res) => {
-    Question.find({ _id: req.params.j_id })
+    Job.find({ _id: req.params.j_id })
         .then(job => {
             if (!job) {
                 return res.json({ "NoJob": "Job Not found" });
@@ -58,7 +89,7 @@ router.delete("/:j_id"/*, authorize*/, (req, res) => {
 //@access - PUBLIC
 router.get("/", async (req, res) => {
     // destructure page and limit and set default values
-    const { page = 1, limit = 3 } = req.query;
+    const { page = 1, limit = 6 } = req.query;
   
     try {
       // execute query with page and limit values
